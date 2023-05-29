@@ -12,7 +12,6 @@ public class DebugManager : MonoBehaviour
         if (!Input.GetKey(KeyCode.LeftControl)) return;
 
         DebugDrawCard();
-        DebugPause();
         DebugRestart();
     }
 
@@ -20,12 +19,6 @@ public class DebugManager : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.D)) return;
         BattleManager.Instance.DrawCard();
-    }
-
-    private void DebugPause()
-    {
-        if (!Input.GetKeyDown(KeyCode.P)) return;
-        EditorApplication.isPaused = !EditorApplication.isPaused;
     }
 
     private void DebugRestart()

@@ -166,6 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 433a1db0d4d078e49940f36dc859cbfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabCardHint: {fileID: 2004247593227528703, guid: cad609514920c244d8f1aae58543a218, type: 3}
   container: {fileID: 7120677354422603188}
   cardImage: {fileID: 5319910255669530628}
   cardTitle: {fileID: 4754994156757220756}

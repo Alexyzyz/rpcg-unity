@@ -5,8 +5,7 @@ using UnityEngine;
 public interface IUnit
 {
 
-    public int HP { get; set; }
-    public int HPmax { get; set; }
-    public List<IStatus> StatusList { get; set; }
+    public string Title { get; }
+    public int HPmax { get; }
 
 }

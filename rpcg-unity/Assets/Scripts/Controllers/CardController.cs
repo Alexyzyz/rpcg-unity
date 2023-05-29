@@ -13,13 +13,16 @@ public class CardController :
     IPointerClickHandler
 {
 
+    [Header("Prefabs")]
+    [SerializeField] private CardHintController prefabCardHint;
+
     [Header("Components")]
     [SerializeField] private RectTransform container; // We manipulate this transform instead
 	[SerializeField] private Image cardImage;
     [SerializeField] private TextMeshProUGUI cardTitle;
     [SerializeField] private TextMeshProUGUI cardCost;
 
-	public Card Model { get; private set; }
+	public ICard Model { get; private set; }
 
     public Vector2 Position
     {
@@ -28,38 +31,52 @@ public class CardController :
     }
 
     public Vector2 AnchoredPosition {
-        get { return RectTrans.anchoredPosition; }
-        set { RectTrans.anchoredPosition = value; }
+        get { return RectTransform.anchoredPosition; }
+        set { RectTransform.anchoredPosition = value; }
     }
 
-    public float CardWidth => RectTrans.rect.width;
+    public float CardWidth => RectTransform.rect.width;
 
-    private RectTransform _rectTrans;
-    private RectTransform RectTrans
+    private RectTransform _rectTransform;
+    private RectTransform RectTransform
     {
         get
         {
-            if (_rectTrans == null)
+            if (_rectTransform == null)
             {
-                _rectTrans = GetComponent<RectTransform>();
+                _rectTransform = GetComponent<RectTransform>();
             }
-            return _rectTrans;
+            return _rectTransform;
         }
     }
 
-    #region ——— Constants ———
+    private CardHintController _cardHint;
+    private CardHintController CardHint
+    {
+        get
+        {
+            if (_cardHint == null)
+            {
+                _cardHint = Instantiate(prefabCardHint, Vector2.zero, Quaternion.identity, RectTransform);
+                _cardHint.Bind(this);
+            }
+            return _cardHint;
+        }
+    }
+
+    #region Constants
     private const float CARD_HOVER_DISTANCE = 20f;
     private const float CARD_HOVER_DURATION = 0.1f;
     #endregion
 
-    #region ——— Coroutines ———
+    #region Coroutines
     private Coroutine positionCoroutine;
     private Coroutine hoveredCoroutine;
     #endregion
 
     private bool isBeingHovered;
 
-    public void Bind(Card model)
+    public void Bind(ICard model)
 	{
 		Model = model;
 
@@ -125,7 +142,9 @@ public class CardController :
 		void TransFunction(float t)
 		{
             container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
-		}
+        }
+
+        CardHint.ShowHint();
 
         isBeingHovered = true;
     }
@@ -143,6 +162,8 @@ public class CardController :
             container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
         }
 
+        CardHint.HideHint();
+
         isBeingHovered = false;
     }
 
@@ -150,7 +171,17 @@ public class CardController :
     {
         if (!isBeingHovered) return;
 
-        Discard();
+        switch (eventData.button)
+        {
+            case PointerEventData.InputButton.Left:
+                Model.OnPlayed();
+                Discard();
+                break;
+            case PointerEventData.InputButton.Right:
+                break;
+            default:
+                break;
+        }
 
     }
 
