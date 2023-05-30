@@ -29,7 +29,7 @@ public class CardHintController : MonoBehaviour
 	}
 
     #region Constants
-    private const float HINT_Y_POS = 230f;
+    private const float HINT_Y_POS = 200f;
     private const float HOVER_HEIGHT = 20f;
 	private const float HOVER_ANIMATION_DURATION = 0.1f;
     #endregion

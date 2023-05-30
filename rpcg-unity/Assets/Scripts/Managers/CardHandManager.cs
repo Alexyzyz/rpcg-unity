@@ -11,14 +11,9 @@ public class CardHandManager : MonoBehaviour
 
 	private const float CARD_SPACING = 5f;
 
-	public void OnDrawCard(CardController card)
-	{
-		CardControllerList.Add(card);
-		UpdateCardPositions();
-    }
-
-    public void OnDiscardCard(CardController card)
+    public void Discard(CardController card)
     {
+		card.AnimateDiscard();
         CardControllerList.Remove(card);
         UpdateCardPositions();
     }
@@ -38,10 +33,15 @@ public class CardHandManager : MonoBehaviour
 		}
 	}
 
-	private void Subscribe()
+    private void OnDrawCard(CardController card)
+    {
+        CardControllerList.Add(card);
+        UpdateCardPositions();
+    }
+
+    private void Subscribe()
 	{
 		EventManager.Instance.OnCardDrawn += OnDrawCard;
-		EventManager.Instance.OnCardDiscarded += OnDiscardCard;
 	}
 
     private void Awake()

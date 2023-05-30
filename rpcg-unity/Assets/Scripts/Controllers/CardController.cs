@@ -19,7 +19,8 @@ public class CardController :
     [Header("Components")]
     [SerializeField] private RectTransform container;
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private Image discardHighlight;
+    [SerializeField] private RectTransform hintParent;
+    [SerializeField] private Image keptHighlight;
 	[SerializeField] private Image cardImage;
     [SerializeField] private TextMeshProUGUI cardTitle;
     [SerializeField] private TextMeshProUGUI cardCost;
@@ -36,6 +37,8 @@ public class CardController :
         get { return RectTransform.anchoredPosition; }
         set { RectTransform.anchoredPosition = value; }
     }
+
+    public bool IsPlayable => manaCostSatisfied && !isSelectedToBeKept;
 
     public float CardWidth => RectTransform.rect.width;
 
@@ -59,7 +62,7 @@ public class CardController :
         {
             if (_cardHint == null)
             {
-                _cardHint = Instantiate(prefabCardHint, Vector2.zero, Quaternion.identity, RectTransform);
+                _cardHint = Instantiate(prefabCardHint, Vector2.zero, Quaternion.identity, hintParent);
                 _cardHint.Bind(this);
             }
             return _cardHint;
@@ -77,8 +80,15 @@ public class CardController :
     #endregion
 
     private bool isBeingHovered;
-    private bool isPlayable;
-    private bool isSelectedToBeDiscarded;
+    private bool isSelectedToBeKept => BattleManager.Instance.CardsToBeKept.Contains(this);
+    private bool manaCostSatisfied
+    {
+        get
+        {
+            if (Model == null) return false;
+            return BattleManager.Instance.Mana >= Model.Cost;
+        }
+    }
 
     public void Bind(ICard model)
 	{
@@ -126,27 +136,57 @@ public class CardController :
         }
     }
 
-    public void SetSelectedToBeDiscarded(bool isDiscarded)
+    /// <summary>
+    /// Toggle whether this card is being kept for the next turn or not.
+    /// </summary>
+    /// <param name="isBeingKept"></param>
+    public void SetSelectedToBeKept(bool isBeingKept)
     {
-        discardHighlight.gameObject.SetActive(isDiscarded);
+        keptHighlight.gameObject.SetActive(isBeingKept);
     }
 
-    public void Discard()
+    /// <summary>
+    /// Animate this card being discarded.
+    /// </summary>
+    public void AnimateDiscard()
     {
-        BattleManager.Instance.DiscardCard(this);
         SetPosition(BattleManager.Instance.DiscardPileContainer.position, 0.4f, OnReachDiscardPile);
-
         void OnReachDiscardPile()
         {
             Destroy(gameObject);
         }
     }
 
-    public void OnManaChanged()
+    /// <summary>
+    /// Play this card.
+    /// </summary>
+    private void Play()
     {
-        isPlayable = BattleManager.Instance.Mana >= Model.Cost;
-        canvasGroup.alpha = isPlayable ? 1 : 0.5f;
+        if (!IsPlayable) return;
+
+        BattleManager.Instance.Mana -= Model.Cost;
+        Model.OnPlayed();
+
+        CardHandManager.Instance.Discard(this);
+        EventManager.Instance.OnCardPlayed?.Invoke(this);
     }
+
+    private void OnManaChanged()
+    {
+        canvasGroup.alpha = manaCostSatisfied ? 1 : 0.5f;
+    }
+
+    private void Subscribe()
+    {
+        EventManager.Instance.OnManaChanged += OnManaChanged;
+    }
+
+    private void Unsubscribe()
+    {
+        EventManager.Instance.OnManaChanged -= OnManaChanged;
+    }
+
+    #region Unity methods
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -191,28 +231,15 @@ public class CardController :
         switch (eventData.button)
         {
             case PointerEventData.InputButton.Left:
-                if (!isPlayable) return;
-                BattleManager.Instance.Mana -= Model.Cost;
-                Model.OnPlayed();
-                Discard();
+                Play();
                 break;
             case PointerEventData.InputButton.Right:
-                BattleManager.Instance.SelectCardToBeDiscarded(this);
+                BattleManager.Instance.SelectCardToBeKept(this);
                 break;
             default:
                 break;
         }
 
-    }
-
-    private void Subscribe()
-    {
-        EventManager.Instance.OnManaChanged += OnManaChanged;
-    }
-
-    private void Unsubscribe()
-    {
-        EventManager.Instance.OnManaChanged -= OnManaChanged;
     }
 
     private void Start()
@@ -224,5 +251,7 @@ public class CardController :
     {
         Unsubscribe();
     }
+
+    #endregion
 
 }

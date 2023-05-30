@@ -9,6 +9,16 @@ public class CardGameManager : MonoBehaviour
     public static CardGameManager Instance;
 
     /// <summary>
+    /// The game will ask you to discard your hand until you only have this amount before ending your turn.
+    /// </summary>
+    public const int MAX_CARDS_IN_HAND = 6;
+
+    /// <summary>
+    /// You may keep up to this amount of cards to carry over to your next turn.
+    /// </summary>
+    public const int MAX_KEEPABLE_CARDS = 2;
+
+    /// <summary>
     /// A list of all cards available in the game.
     /// </summary>
     public List<ICard> CardTypeList = new()

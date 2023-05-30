@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7184853994819111581}
   - component: {fileID: 4774758098181678738}
   m_Layer: 5
-  m_Name: DiscardHighlight
+  m_Name: KeptHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,7 +36,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 8, y: 8}
+  m_SizeDelta: {x: 12, y: 12}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7184853994819111581
 CanvasRenderer:
@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.5912385, b: 0, a: 1}
+  m_Color: {r: 0.6714008, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -152,6 +152,42 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &3308124427165770976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 548906628128067900}
+  m_Layer: 5
+  m_Name: HintParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &548906628128067900
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3308124427165770976}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7250732643251829383}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &3384413916840232844
 GameObject:
   m_ObjectHideFlags: 0
@@ -164,7 +200,6 @@ GameObject:
   - component: {fileID: 6550901961814809750}
   - component: {fileID: 4070345935739021238}
   - component: {fileID: 6631683168407737065}
-  - component: {fileID: 6096860999473511440}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -185,6 +220,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7120677354422603188}
+  - {fileID: 548906628128067900}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -245,23 +281,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabCardHint: {fileID: 2004247593227528703, guid: cad609514920c244d8f1aae58543a218, type: 3}
   container: {fileID: 7120677354422603188}
-  canvasGroup: {fileID: 6096860999473511440}
-  discardHighlight: {fileID: 4774758098181678738}
+  canvasGroup: {fileID: 1201430364775066578}
+  hintParent: {fileID: 548906628128067900}
+  keptHighlight: {fileID: 4774758098181678738}
   cardImage: {fileID: 5319910255669530628}
   cardTitle: {fileID: 4754994156757220756}
   cardCost: {fileID: 8793646640259402312}
---- !u!225 &6096860999473511440
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3384413916840232844}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &3569597299225863796
 GameObject:
   m_ObjectHideFlags: 0
@@ -272,6 +297,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7120677354422603188}
   - component: {fileID: 5978337447498312980}
+  - component: {fileID: 1201430364775066578}
   m_Layer: 5
   m_Name: Container
   m_TagString: Untagged
@@ -313,6 +339,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3569597299225863796}
   m_CullTransparentMesh: 1
+--- !u!225 &1201430364775066578
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3569597299225863796}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6950036057320913183
 GameObject:
   m_ObjectHideFlags: 0

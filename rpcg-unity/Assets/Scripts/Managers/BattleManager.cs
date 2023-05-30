@@ -24,7 +24,7 @@ public class BattleManager : MonoBehaviour
     public List<ICard> DrawList { get; } = new List<ICard>();
     public List<ICard> DiscardList { get; } = new List<ICard>();
 
-    public List<CardController> CardsToBeDiscarded { get; } = new List<CardController>();
+    public List<CardController> CardsToBeKept{ get; } = new List<CardController>();
 
     public List<UnitController> HeroList { get; } = new List<UnitController>();
     public List<UnitController> EnemyList { get; } = new List<UnitController>();
@@ -55,10 +55,10 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private int MINIMUM_CARDS_TO_BE_DISCARDED = 2;
+    #region Public methods
 
     /// <summary>
-    /// Attempts to draw a card from the draw pile and instantiate it.
+    /// Attempt to draw a card from the draw pile and instantiate it.
     /// </summary>
     public void DrawCard()
     {
@@ -78,7 +78,7 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates a card and places it in your hand.
+    /// Create a card and place it in your hand.
     /// </summary>
     public void CreateCard(ICard cardModel)
     {
@@ -94,28 +94,66 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Discard a card.
+    /// Handle when a card is selected to be kept for the next turn.
     /// </summary>
-    public void DiscardCard(CardController card)
+    public void SelectCardToBeKept(CardController card)
     {
-        EventManager.Instance.OnCardDiscarded.Invoke(card);
-    }
-
-    /// <summary>
-    /// Handle when a card is selected to be discarded this turn.
-    /// </summary>
-    public void SelectCardToBeDiscarded(CardController card)
-    {
-        if (CardsToBeDiscarded.Contains(card))
+        if (CardsToBeKept.Contains(card))
         {
-            card.SetSelectedToBeDiscarded(false);
-            CardsToBeDiscarded.Remove(card);
+            card.SetSelectedToBeKept(false);
+            CardsToBeKept.Remove(card);
+            EventManager.Instance.OnCardKeepPressed?.Invoke(card);
             return;
         }
 
-        if (CardsToBeDiscarded.Count >= MINIMUM_CARDS_TO_BE_DISCARDED) return;
-        CardsToBeDiscarded.Add(card);
-        card.SetSelectedToBeDiscarded(true);
+        if (CardsToBeKept.Count >= CardGameManager.MAX_KEEPABLE_CARDS) return;
+
+        CardsToBeKept.Add(card);
+        card.SetSelectedToBeKept(true);
+        EventManager.Instance.OnCardKeepPressed?.Invoke(card);
+    }
+
+    /// <summary>
+    /// End your turn.
+    /// </summary>
+    public void EndTurn()
+    {
+        int amountToDraw = CardGameManager.MAX_CARDS_IN_HAND;
+        foreach (CardController cardToDiscard in CardHandManager.Instance.CardControllerList)
+        {
+            if (CardsToBeKept.Contains(cardToDiscard))
+            {
+                cardToDiscard.SetSelectedToBeKept(false);
+                amountToDraw--;
+                continue;
+            }
+            BattleEventManager.Instance.AddEvent(() => CardHandManager.Instance.Discard(cardToDiscard), 0.1f);
+        }
+
+        CardsToBeKept.Clear();
+
+        // Refill your hand
+        for (int i = 0; i < amountToDraw; i++)
+        {
+            BattleEventManager.Instance.AddEvent(DrawCard, 0.1f);
+        }
+
+        // Refill your mana
+        Mana = MaxMana;
+
+        EventManager.Instance.OnTurnEnded?.Invoke();
+    }
+
+    #endregion
+
+    #region Private
+
+    private void DrawInitialHand()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            BattleEventManager.Instance.AddEvent(DrawCard, 0.1f);
+        }
     }
 
     private void PopulateDeck()
@@ -123,14 +161,6 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < 30; i++)
         {
             DrawList.Add(CardGameManager.Instance.CardTypeList.SelectRandom());
-        }
-    }
-
-    private void DrawInitialHand()
-    {
-        for (int i = 0; i < 6; i++)
-        {
-            BattleEventManager.Instance.AddEvent(DrawCard, 0.1f);
         }
     }
 
@@ -160,6 +190,10 @@ public class BattleManager : MonoBehaviour
         return newUnit;
     }
 
+    #endregion
+
+    #region Unity methods
+
     private void Awake()
     {
         if (Instance == null)
@@ -181,5 +215,7 @@ public class BattleManager : MonoBehaviour
 
         DrawInitialHand();
     }
+
+    #endregion
 
 }
