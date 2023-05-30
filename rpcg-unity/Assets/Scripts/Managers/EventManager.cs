@@ -7,6 +7,10 @@ public class EventManager : MonoBehaviour
 
 	public static EventManager Instance;
 
+    public delegate void Notifier();
+    public Notifier OnGameEventFinished;
+    public Notifier OnManaChanged;
+
     public delegate void CardControllerNotifier(CardController cardController);
     public CardControllerNotifier OnCardDrawn;
     public CardControllerNotifier OnCardDiscarded;

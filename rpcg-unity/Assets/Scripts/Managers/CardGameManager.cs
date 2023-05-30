@@ -11,8 +11,8 @@ public class CardGameManager : MonoBehaviour
     /// <summary>
     /// A list of all cards available in the game.
     /// </summary>
-    public ICard[] CardTypeList = new ICard[]
-{
+    public List<ICard> CardTypeList = new()
+    {
         new CardScratch(),
         new CardEnemyHealer(),
         new CardPortableStove(),

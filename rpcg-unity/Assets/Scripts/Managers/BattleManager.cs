@@ -24,12 +24,38 @@ public class BattleManager : MonoBehaviour
     public List<ICard> DrawList { get; } = new List<ICard>();
     public List<ICard> DiscardList { get; } = new List<ICard>();
 
+    public List<CardController> CardsToBeDiscarded { get; } = new List<CardController>();
+
     public List<UnitController> HeroList { get; } = new List<UnitController>();
     public List<UnitController> EnemyList { get; } = new List<UnitController>();
 
     public UnitController MainHero { get; private set; }
 
     public float CardPrefabWidth => PrefabCard.CardWidth;
+
+    private int _mana;
+    private int _maxMana;
+
+    public int Mana {
+        get { return _mana; }
+        set
+        {
+            _mana = value;
+            EventManager.Instance.OnManaChanged?.Invoke();
+        }
+    }
+    
+    public int MaxMana
+    {
+        get { return _maxMana; }
+        set
+        {
+            _maxMana = value;
+            EventManager.Instance.OnManaChanged?.Invoke();
+        }
+    }
+
+    private int MINIMUM_CARDS_TO_BE_DISCARDED = 2;
 
     /// <summary>
     /// Attempts to draw a card from the draw pile and instantiate it.
@@ -75,13 +101,36 @@ public class BattleManager : MonoBehaviour
         EventManager.Instance.OnCardDiscarded.Invoke(card);
     }
 
+    /// <summary>
+    /// Handle when a card is selected to be discarded this turn.
+    /// </summary>
+    public void SelectCardToBeDiscarded(CardController card)
+    {
+        if (CardsToBeDiscarded.Contains(card))
+        {
+            card.SetSelectedToBeDiscarded(false);
+            CardsToBeDiscarded.Remove(card);
+            return;
+        }
+
+        if (CardsToBeDiscarded.Count >= MINIMUM_CARDS_TO_BE_DISCARDED) return;
+        CardsToBeDiscarded.Add(card);
+        card.SetSelectedToBeDiscarded(true);
+    }
+
     private void PopulateDeck()
     {
         for (int i = 0; i < 30; i++)
         {
-            ICard[] cardTypeList = CardGameManager.Instance.CardTypeList;
-            int randIndex = Random.Range(0, cardTypeList.Length);
-            DrawList.Add(cardTypeList[randIndex]);
+            DrawList.Add(CardGameManager.Instance.CardTypeList.SelectRandom());
+        }
+    }
+
+    private void DrawInitialHand()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            BattleEventManager.Instance.AddEvent(DrawCard, 0.1f);
         }
     }
 
@@ -120,9 +169,17 @@ public class BattleManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
+    }
+
+    private void Start()
+    {
         PopulateDeck();
         PopulateUnitField();
+
+        Mana = 7;
+        MaxMana = 7;
+
+        DrawInitialHand();
     }
 
 }

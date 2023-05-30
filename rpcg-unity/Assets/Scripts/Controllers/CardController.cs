@@ -17,7 +17,9 @@ public class CardController :
     [SerializeField] private CardHintController prefabCardHint;
 
     [Header("Components")]
-    [SerializeField] private RectTransform container; // We manipulate this transform instead
+    [SerializeField] private RectTransform container;
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private Image discardHighlight;
 	[SerializeField] private Image cardImage;
     [SerializeField] private TextMeshProUGUI cardTitle;
     [SerializeField] private TextMeshProUGUI cardCost;
@@ -75,6 +77,8 @@ public class CardController :
     #endregion
 
     private bool isBeingHovered;
+    private bool isPlayable;
+    private bool isSelectedToBeDiscarded;
 
     public void Bind(ICard model)
 	{
@@ -82,7 +86,9 @@ public class CardController :
 
 		cardTitle.text = model.Title;
 		cardCost.text = "" + model.Cost;
-	}
+
+        OnManaChanged();
+    }
 
     /// <summary>
     /// Perfect if you're moving this card to something else that's not its current parent.
@@ -120,6 +126,11 @@ public class CardController :
         }
     }
 
+    public void SetSelectedToBeDiscarded(bool isDiscarded)
+    {
+        discardHighlight.gameObject.SetActive(isDiscarded);
+    }
+
     public void Discard()
     {
         BattleManager.Instance.DiscardCard(this);
@@ -129,6 +140,12 @@ public class CardController :
         {
             Destroy(gameObject);
         }
+    }
+
+    public void OnManaChanged()
+    {
+        isPlayable = BattleManager.Instance.Mana >= Model.Cost;
+        canvasGroup.alpha = isPlayable ? 1 : 0.5f;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -174,10 +191,13 @@ public class CardController :
         switch (eventData.button)
         {
             case PointerEventData.InputButton.Left:
+                if (!isPlayable) return;
+                BattleManager.Instance.Mana -= Model.Cost;
                 Model.OnPlayed();
                 Discard();
                 break;
             case PointerEventData.InputButton.Right:
+                BattleManager.Instance.SelectCardToBeDiscarded(this);
                 break;
             default:
                 break;
@@ -185,9 +205,24 @@ public class CardController :
 
     }
 
-    private void Update()
+    private void Subscribe()
     {
-        
+        EventManager.Instance.OnManaChanged += OnManaChanged;
+    }
+
+    private void Unsubscribe()
+    {
+        EventManager.Instance.OnManaChanged -= OnManaChanged;
+    }
+
+    private void Start()
+    {
+        Subscribe();
+    }
+
+    private void OnDestroy()
+    {
+        Unsubscribe();
     }
 
 }

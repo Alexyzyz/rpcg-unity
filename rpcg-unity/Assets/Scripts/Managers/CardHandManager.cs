@@ -38,7 +38,7 @@ public class CardHandManager : MonoBehaviour
 		}
 	}
 
-	private void SubscribeToBroadcasters()
+	private void Subscribe()
 	{
 		EventManager.Instance.OnCardDrawn += OnDrawCard;
 		EventManager.Instance.OnCardDiscarded += OnDiscardCard;
@@ -54,7 +54,7 @@ public class CardHandManager : MonoBehaviour
 			Destroy(gameObject);
 		}
 
-		SubscribeToBroadcasters();
+		Subscribe();
     }
 
 }
