@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardPortableStove : ICard
+public class CardPortableStove : ICardTargetNone
 {
 
     public string Title { get; } = "Portable Stove";

@@ -55,6 +55,8 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    public bool IsHeroTurn { get; private set; } = true;
+
     #region Public methods
 
     /// <summary>
@@ -141,6 +143,8 @@ public class BattleManager : MonoBehaviour
         // Refill your mana
         Mana = MaxMana;
 
+        IsHeroTurn = !IsHeroTurn;
+
         EventManager.Instance.OnTurnEnded?.Invoke();
     }
 
@@ -166,28 +170,34 @@ public class BattleManager : MonoBehaviour
 
     private void PopulateUnitField()
     {
-        MainHero = AddUnit(new UnitStarter(), true);
-        AddUnit(new UnitStarter(), false);
+        MainHero = AddHero(new HeroStarter());
+        AddEnemy(new EnemyBasic());
     }
 
-    private UnitController AddUnit(IUnit unitModel, bool isHero)
+    private UnitController AddHero(IHero heroModel)
     {
-        UnitController newUnit = Instantiate(
+        UnitController newHero = Instantiate(
             PrefabUnit,
             Vector3.zero,
             Quaternion.identity,
-            isHero ? FieldHero.transform : FieldEnemy.transform);
-        newUnit.transform.localPosition = Vector3.zero;
-        newUnit.Bind(unitModel);
+            FieldHero.transform);
+        newHero.transform.localPosition = Vector3.zero;
+        newHero.Bind(heroModel);
+        HeroList.Add(newHero);
+        return newHero;
+    }
 
-        if (isHero)
-        {
-            HeroList.Add(newUnit);
-        } else
-        {
-            EnemyList.Add(newUnit);
-        }
-        return newUnit;
+    private UnitController AddEnemy(IEnemy enemyModel)
+    {
+        UnitController newEnemy = Instantiate(
+            PrefabUnit,
+            Vector3.zero,
+            Quaternion.identity,
+            FieldEnemy.transform);
+        newEnemy.transform.localPosition = Vector3.zero;
+        newEnemy.Bind(enemyModel);
+        EnemyList.Add(newEnemy);
+        return newEnemy;
     }
 
     #endregion
@@ -210,8 +220,8 @@ public class BattleManager : MonoBehaviour
         PopulateDeck();
         PopulateUnitField();
 
-        Mana = 7;
-        MaxMana = 7;
+        Mana = 5;
+        MaxMana = 5;
 
         DrawInitialHand();
     }

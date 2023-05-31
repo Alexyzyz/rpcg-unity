@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardPoisonPotato : ICard
+public class CardPoisonPotato : ICardTargetNone
 {
 
     private const int POISON_DAMAGE = 3;

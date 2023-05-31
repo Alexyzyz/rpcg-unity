@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardCarrot : ICard
+public class CardCarrot : ICardTargetAllySingle
 {
 
     private const int HEALING = 20;
@@ -15,10 +15,9 @@ public class CardCarrot : ICard
         CardGame.CardTags.Food
     };
 
-    public void OnPlayed()
+    public void OnTargetAllySingle(UnitController target)
     {
-        UnitController player = BattleManager.Instance.MainHero;
-        player.TakeDamage(-HEALING);
+        target.TakeDamage(-HEALING);
     }
 
 }

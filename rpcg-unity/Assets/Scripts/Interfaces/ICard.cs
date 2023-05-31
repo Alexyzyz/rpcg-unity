@@ -10,6 +10,4 @@ public interface ICard
     public int Cost { get; }
     public List<CardGame.CardTags> CardTags { get; }
 
-    public void OnPlayed();
-
 }

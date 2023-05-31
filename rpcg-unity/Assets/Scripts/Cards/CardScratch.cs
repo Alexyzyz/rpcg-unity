@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardScratch : ICard
+public class CardScratch : ICardTargetOpponentSingle
 {
 
     private const int DAMAGE = 20;
@@ -12,14 +12,10 @@ public class CardScratch : ICard
     public int Cost { get; } = 1;
 
     public List<CardGame.CardTags> CardTags { get; } = new() { };
-
-    public void OnPlayed()
+    
+    public void OnTargetOpponentSingle(UnitController target)
     {
-        List<UnitController> enemyList = BattleManager.Instance.EnemyList;
-
-        if (enemyList.Count == 0) return;
-        UnitController targetUnit = enemyList[0];
-        targetUnit.TakeDamage(DAMAGE);
+        target.TakeDamage(DAMAGE);
     }
 
 }

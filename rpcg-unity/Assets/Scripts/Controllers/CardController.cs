@@ -165,7 +165,27 @@ public class CardController :
         if (!IsPlayable) return;
 
         BattleManager.Instance.Mana -= Model.Cost;
-        Model.OnPlayed();
+
+        // TODO: Prompt BattleManager to display a UI for selecting the targets
+
+        if (Model is ICardTargetNone)
+        {
+            // Card doesn't target any particular unit
+            ICardTargetNone model = Model as ICardTargetNone;
+            model.OnPlayed();
+        } else
+        if (Model is ICardTargetOpponentSingle)
+        {
+            // Card can only target one opponent
+            ICardTargetOpponentSingle model = Model as ICardTargetOpponentSingle;
+            model.OnTargetOpponentSingle(BattleManager.Instance.EnemyList[0]);
+        } else
+        if (Model is ICardTargetAllySingle)
+        {
+            // Card can only target one ally
+            ICardTargetAllySingle model = Model as ICardTargetAllySingle;
+            model.OnTargetAllySingle(BattleManager.Instance.HeroList[0]);
+        }
 
         CardHandManager.Instance.Discard(this);
         EventManager.Instance.OnCardPlayed?.Invoke(this);
