@@ -11,7 +11,7 @@ public class CardScratch : ICardTargetOpponentSingle
     public string Description { get; } = $"Deals {DAMAGE} damage.";
     public int Cost { get; } = 1;
 
-    public List<CardGame.CardTags> CardTags { get; } = new() { };
+    public List<CardGame.CardTag> CardTag { get; } = new() { };
     
     public void OnTargetOpponentSingle(UnitController target)
     {

@@ -14,7 +14,6 @@ public class EventManager : MonoBehaviour
 
     public delegate void CardControllerNotifier(CardController cardController);
     public CardControllerNotifier OnCardDrawn { get; set; }
-    public CardControllerNotifier OnCardPlayed { get; set; }
     /// <summary>
     /// Called when a card is pressed to toggle keeping it. Right mouse button by default.
     /// </summary>

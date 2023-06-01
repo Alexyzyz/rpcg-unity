@@ -9,7 +9,7 @@ public class CardPortableStove : ICardTargetNone
     public string Description { get; } = $"Creates a random Food card in your hand.";
     public int Cost { get; } = 2;
     
-    public List<CardGame.CardTags> CardTags { get; } = new() { };
+    public List<CardGame.CardTag> CardTag { get; } = new() { };
 
     public void OnPlayed()
     {

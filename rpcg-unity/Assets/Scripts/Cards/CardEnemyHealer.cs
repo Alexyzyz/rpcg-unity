@@ -10,7 +10,7 @@ public class CardEnemyHealer : ICardTargetAllySingle
     public string Title { get; } = "First Aid";
     public string Description { get; } = $"Heals your opponent by {HEALING} HP.";
     public int Cost { get; } = 2;
-    public List<CardGame.CardTags> CardTags { get; } = new List<CardGame.CardTags>() { };
+    public List<CardGame.CardTag> CardTag { get; } = new List<CardGame.CardTag>() { };
 
     public void OnTargetAllySingle(UnitController target)
     {

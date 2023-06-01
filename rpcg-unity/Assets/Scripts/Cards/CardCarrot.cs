@@ -11,8 +11,8 @@ public class CardCarrot : ICardTargetAllySingle
     public string Description { get; } = $"Heals {HEALING} HP.";
     public int Cost { get; } = 0;
 
-    public List<CardGame.CardTags> CardTags { get; } = new() {
-        CardGame.CardTags.Food
+    public List<CardGame.CardTag> CardTag { get; } = new() {
+        CardGame.CardTag.Food
     };
 
     public void OnTargetAllySingle(UnitController target)

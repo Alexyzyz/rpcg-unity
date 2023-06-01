@@ -33,7 +33,7 @@ public class CardGameManager : MonoBehaviour
     /// <summary>
     /// A list of all Food cards available in the game.
     /// </summary>
-    public List<ICard> AllFoodCards => CardTypeList.Where(item => item.CardTags.Contains(CardGame.CardTags.Food)).ToList();
+    public List<ICard> AllFoodCards => CardTypeList.Where(item => item.CardTag.Contains(CardGame.CardTag.Food)).ToList();
 
     private void Awake()
     {
@@ -50,9 +50,16 @@ public class CardGameManager : MonoBehaviour
 
 namespace CardGame
 {
-    public enum CardTags
+    public enum CardTag
     {
         Food,
         Ally
+    }
+
+    public enum CardTargetType
+    {
+        None,
+        AllySingle,
+        OpponentSingle
     }
 }

@@ -40,6 +40,16 @@ public class CardController :
 
     public bool IsPlayable => manaCostSatisfied && !isSelectedToBeKept;
 
+    public CardGame.CardTargetType TargetType
+    {
+        get
+        {
+            if (Model is ICardTargetOpponentSingle) return CardGame.CardTargetType.OpponentSingle;
+            if (Model is ICardTargetAllySingle) return CardGame.CardTargetType.AllySingle;
+            return CardGame.CardTargetType.None;
+        }
+    }
+
     public float CardWidth => RectTransform.rect.width;
 
     private RectTransform _rectTransform;
@@ -79,7 +89,11 @@ public class CardController :
     private Coroutine hoveredCoroutine;
     #endregion
 
-    private bool isBeingHovered;
+    public bool IsHoverable { get; set; } = true;
+    private bool isBeingHovered { get; set; }
+
+    private bool isBeingPrepared { get; set; }
+
     private bool isSelectedToBeKept => BattleManager.Instance.CardsToBeKept.Contains(this);
     private bool manaCostSatisfied
     {
@@ -158,37 +172,96 @@ public class CardController :
     }
 
     /// <summary>
-    /// Play this card.
+    /// Prepare to play this card.
     /// </summary>
-    private void Play()
+    private void Prepare()
     {
         if (!IsPlayable) return;
 
-        BattleManager.Instance.Mana -= Model.Cost;
-
-        // TODO: Prompt BattleManager to display a UI for selecting the targets
-
+        // If the card doesn't target, skip the preparation step
         if (Model is ICardTargetNone)
         {
-            // Card doesn't target any particular unit
-            ICardTargetNone model = Model as ICardTargetNone;
-            model.OnPlayed();
-        } else
+            BattleManager.Instance.Mana -= Model.Cost;
+
+            (Model as ICardTargetNone).OnPlayed();
+            CardHandManager.Instance.Discard(this);
+            return;
+        }
+
+        // The card targets, we need to select a unit
+        isBeingPrepared = true;
+        BattleManager.Instance.BeginSelectingUnit(this);
+    }
+
+    /// <summary>
+    /// Cancel to play this card.
+    /// </summary>
+    private void Cancel()
+    {
+        isBeingPrepared = false;
+        BattleManager.Instance.CancelSelectingUnit();
+    }
+
+    /// <summary>
+    /// Play this card.
+    /// </summary>
+    public void Play(UnitController target)
+    {
+        BattleManager.Instance.Mana -= Model.Cost;
+
         if (Model is ICardTargetOpponentSingle)
         {
             // Card can only target one opponent
             ICardTargetOpponentSingle model = Model as ICardTargetOpponentSingle;
-            model.OnTargetOpponentSingle(BattleManager.Instance.EnemyList[0]);
-        } else
+            model.OnTargetOpponentSingle(target);
+        }
+        else
         if (Model is ICardTargetAllySingle)
         {
             // Card can only target one ally
             ICardTargetAllySingle model = Model as ICardTargetAllySingle;
-            model.OnTargetAllySingle(BattleManager.Instance.HeroList[0]);
+            model.OnTargetAllySingle(target);
         }
 
         CardHandManager.Instance.Discard(this);
-        EventManager.Instance.OnCardPlayed?.Invoke(this);
+    }
+
+    private void OnHovered()
+    {
+        if (!IsHoverable) return;
+
+        Vector2 startPos = container.anchoredPosition;
+        Vector2 endPos = Vector2.up * CARD_HOVER_DISTANCE;
+
+        this.EnsureCoroutineStopped(ref hoveredCoroutine);
+        hoveredCoroutine = this.CreateAnimationRoutine(CARD_HOVER_DURATION, TransFunction);
+
+        void TransFunction(float t)
+        {
+            container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+        }
+
+        CardHint.ShowHint();
+
+        isBeingHovered = true;
+    }
+
+    private void OnUnhovered()
+    {
+        Vector2 startPos = container.anchoredPosition;
+        Vector2 endPos = Vector2.zero;
+
+        this.EnsureCoroutineStopped(ref hoveredCoroutine);
+        hoveredCoroutine = this.CreateAnimationRoutine(CARD_HOVER_DURATION, TransFunction);
+
+        void TransFunction(float t)
+        {
+            container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+        }
+
+        CardHint.HideHint();
+
+        isBeingHovered = false;
     }
 
     private void OnManaChanged()
@@ -210,38 +283,12 @@ public class CardController :
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Vector2 startPos = container.anchoredPosition;
-		Vector2 endPos = Vector2.up * CARD_HOVER_DISTANCE;
-
-		this.EnsureCoroutineStopped(ref hoveredCoroutine);
-        hoveredCoroutine = this.CreateAnimationRoutine(CARD_HOVER_DURATION, TransFunction);
-
-		void TransFunction(float t)
-		{
-            container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
-        }
-
-        CardHint.ShowHint();
-
-        isBeingHovered = true;
+        OnHovered();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Vector2 startPos = container.anchoredPosition;
-        Vector2 endPos = Vector2.zero;
-
-        this.EnsureCoroutineStopped(ref hoveredCoroutine);
-        hoveredCoroutine = this.CreateAnimationRoutine(CARD_HOVER_DURATION, TransFunction);
-
-        void TransFunction(float t)
-        {
-            container.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
-        }
-
-        CardHint.HideHint();
-
-        isBeingHovered = false;
+        OnUnhovered();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -251,9 +298,16 @@ public class CardController :
         switch (eventData.button)
         {
             case PointerEventData.InputButton.Left:
-                Play();
+                if (isBeingPrepared)
+                {
+                    Cancel();
+                } else
+                {
+                    Prepare();
+                }
                 break;
             case PointerEventData.InputButton.Right:
+                if (isBeingPrepared) return;
                 BattleManager.Instance.SelectCardToBeKept(this);
                 break;
             default:

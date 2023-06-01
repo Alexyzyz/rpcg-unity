@@ -33,6 +33,14 @@ public static class UtilCoroutine
         return value.StartCoroutine(AnimationRoutine(duration, transFunction, onComplete));
     }
 
+    /// <summary>
+    /// For creating a routine that's run every frame like in Update().
+    /// </summary>
+    public static Coroutine CreateUpdateRoutine(this MonoBehaviour value, Action routine)
+    {
+        return value.StartCoroutine(UpdateRoutine(routine));
+    }
+
     private static IEnumerator TimerRoutine(float duration, Action onComplete)
     {
         yield return new WaitForSeconds(duration);
@@ -52,6 +60,15 @@ public static class UtilCoroutine
         }
         transFunction(1);
         onComplete?.Invoke();
+    }
+
+    private static IEnumerator UpdateRoutine(Action routine)
+    {
+        while (true)
+        {
+            routine?.Invoke();
+            yield return null;
+        }
     }
 
 }

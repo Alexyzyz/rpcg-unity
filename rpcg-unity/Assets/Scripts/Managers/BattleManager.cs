@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 public class BattleManager : MonoBehaviour
 {
@@ -9,6 +11,7 @@ public class BattleManager : MonoBehaviour
     public static BattleManager Instance;
 
     [Header("World Components")]
+    public Light LightMain;
     public GameObject FieldHero;
     public GameObject FieldEnemy;
 
@@ -16,6 +19,7 @@ public class BattleManager : MonoBehaviour
     public RectTransform UnitOverheadParent;
     public RectTransform DrawPileContainer;
     public RectTransform DiscardPileContainer;
+    public CardSelectArrowController CardSelectArrow;
 
     [Header("Prefabs")]
     public CardController PrefabCard;
@@ -56,6 +60,9 @@ public class BattleManager : MonoBehaviour
     }
 
     public bool IsHeroTurn { get; private set; } = true;
+
+    public bool IsSelectingUnit { get; private set; } = false;
+    public CardController PreparedCard { get; private set; }
 
     #region Public methods
 
@@ -116,6 +123,59 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Begin selecting a unit.
+    /// </summary>
+    public void BeginSelectingUnit(CardController preparedCard)
+    {
+        PreparedCard = preparedCard;
+
+        IsSelectingUnit = true;
+        LightMain.intensity = 0.5f;
+
+        // Show the select arrow
+        CardSelectArrow.TurnOn(preparedCard);
+        
+        // Enable targetable units to be hoverable
+        CardGame.CardTargetType targetType = preparedCard.TargetType;
+        if (targetType == CardGame.CardTargetType.OpponentSingle)
+        {
+            foreach (UnitController unit in EnemyList) {
+                unit.IsHoverable = true;
+            }
+        } else
+        if (targetType == CardGame.CardTargetType.AllySingle)
+        {
+            foreach (UnitController unit in HeroList) {
+                unit.IsHoverable = true;
+            }
+        }
+
+        // Disable other cards to not be hoverable
+        foreach (CardController card in CardHandManager.Instance.CardControllerList)
+        {
+            card.IsHoverable = false;
+        }
+        PreparedCard.IsHoverable = true;
+    }
+
+    /// <summary>
+    /// Cancel selecting a unit. This is done by clicking the card again.
+    /// </summary>
+    public void CancelSelectingUnit()
+    {
+        FinishSelectingUnit();
+    }
+
+    /// <summary>
+    /// Target unit has been selected.
+    /// </summary>
+    public void EndSelectingUnit(UnitController target)
+    {
+        PreparedCard.Play(target);
+        FinishSelectingUnit();
+    }
+
+    /// <summary>
     /// End your turn.
     /// </summary>
     public void EndTurn()
@@ -172,6 +232,31 @@ public class BattleManager : MonoBehaviour
     {
         MainHero = AddHero(new HeroStarter());
         AddEnemy(new EnemyBasic());
+    }
+
+    private void FinishSelectingUnit()
+    {
+        PreparedCard = null;
+        CardSelectArrow.TurnOff();
+
+        IsSelectingUnit = false;
+        LightMain.intensity = 1f;
+
+        // Disable every unit from being hoverable
+        foreach (UnitController unit in EnemyList)
+        {
+            unit.IsHoverable = false;
+        }
+        foreach (UnitController unit in HeroList)
+        {
+            unit.IsHoverable = false;
+        }
+
+        // Enable every card from being hoverable
+        foreach (CardController card in CardHandManager.Instance.CardControllerList)
+        {
+            card.IsHoverable = true;
+        }
     }
 
     private UnitController AddHero(IHero heroModel)

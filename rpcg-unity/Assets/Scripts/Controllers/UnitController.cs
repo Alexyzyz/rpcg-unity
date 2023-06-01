@@ -5,7 +5,10 @@ using UnityEngine;
 public class UnitController : MonoBehaviour
 {
 
-    [Header("Prefab")]
+	[Header("Components")]
+	[SerializeField] private UnitSelectedHighlightController controllerSelectedHighlight;
+
+    [Header("Prefabs")]
     [SerializeField] private UnitOverheadController prefabOverhead;
 
     public IUnit Model { get; private set; }
@@ -36,6 +39,9 @@ public class UnitController : MonoBehaviour
 			return _overheadController;
 		}
 	}
+
+	public bool IsHoverable { get; set; } = false;
+	public bool IsBeingHovered { get; set; }
 	
 	public void Bind(IUnit model)
 	{
@@ -50,6 +56,23 @@ public class UnitController : MonoBehaviour
 		HP -= damage;
 	}
 
+	private void HandleOnLeftClick()
+	{
+		if (!Input.GetMouseButtonDown(0)) return;
+		if (!IsBeingHovered) return;
+
+        IsHoverable = false;
+		IsBeingHovered = false;
+
+		BattleManager.Instance.EndSelectingUnit(this);
+	}
+
+	private void SetHoveredState(bool isHovered)
+	{
+        IsBeingHovered = isHovered;
+        controllerSelectedHighlight.ToggleVisible(isHovered);
+    }
+
 	private void DebugPosition()
 	{
         float xAxis = (Input.GetKey(KeyCode.A) ? 1 : 0) - (Input.GetKey(KeyCode.D) ? 1 : 0);
@@ -58,9 +81,21 @@ public class UnitController : MonoBehaviour
         transform.position += 5f * normalizedDir * Time.deltaTime;
     }
 
+    private void OnMouseOver()
+    {
+		if (!IsHoverable) return;
+		if (IsBeingHovered) return;
+		SetHoveredState(true);
+    }
+
+    private void OnMouseExit()
+    {
+		SetHoveredState(false);
+    }
+
     private void Update()
     {
-		// DebugPosition();
+		HandleOnLeftClick();
     }
 
 }
