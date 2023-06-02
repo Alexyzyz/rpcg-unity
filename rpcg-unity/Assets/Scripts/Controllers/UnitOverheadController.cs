@@ -32,8 +32,6 @@ public class UnitOverheadController : MonoBehaviour
 
 	public void Bind(UnitController unit)
 	{
-		hpText.outlineWidth = 0.5f;
-
 		unitController = unit;
         hpMax = unit.Model.HPmax;
 		HP = hpMax;

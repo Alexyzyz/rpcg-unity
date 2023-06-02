@@ -19,6 +19,11 @@ public class CardGameManager : MonoBehaviour
     public const int MAX_KEEPABLE_CARDS = 2;
 
     /// <summary>
+    /// The default maximum Mana.
+    /// </summary>
+    public const int MAX_MANA = 5;
+
+    /// <summary>
     /// A list of all cards available in the game.
     /// </summary>
     public List<ICard> CardTypeList = new()

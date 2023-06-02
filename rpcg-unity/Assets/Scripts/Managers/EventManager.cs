@@ -19,6 +19,10 @@ public class EventManager : MonoBehaviour
     /// </summary>
     public CardControllerNotifier OnCardKeepPressed { get; set; }
 
+    public delegate void UnitControllerNotifier(UnitController unitController);
+    public UnitControllerNotifier OnUnitHovered { get; set; }
+    public UnitControllerNotifier OnUnitUnhovered { get; set; }
+
     private void Awake()
     {
         if (Instance == null)

@@ -19,7 +19,7 @@ public class BattleManager : MonoBehaviour
     public RectTransform UnitOverheadParent;
     public RectTransform DrawPileContainer;
     public RectTransform DiscardPileContainer;
-    public CardSelectArrowController CardSelectArrow;
+    public CardSelectArrowManager CardSelectArrowManager;
 
     [Header("Prefabs")]
     public CardController PrefabCard;
@@ -133,7 +133,7 @@ public class BattleManager : MonoBehaviour
         LightMain.intensity = 0.5f;
 
         // Show the select arrow
-        CardSelectArrow.TurnOn(preparedCard);
+        CardSelectArrowManager.TurnOn(preparedCard);
         
         // Enable targetable units to be hoverable
         CardGame.CardTargetType targetType = preparedCard.TargetType;
@@ -212,6 +212,17 @@ public class BattleManager : MonoBehaviour
 
     #region Private
 
+    private void StartBattle()
+    {
+        PopulateDeck();
+        PopulateUnitField();
+
+        Mana = CardGameManager.MAX_MANA;
+        MaxMana = CardGameManager.MAX_MANA;
+
+        DrawInitialHand();
+    }
+
     private void DrawInitialHand()
     {
         for (int i = 0; i < 6; i++)
@@ -237,7 +248,7 @@ public class BattleManager : MonoBehaviour
     private void FinishSelectingUnit()
     {
         PreparedCard = null;
-        CardSelectArrow.TurnOff();
+        CardSelectArrowManager.TurnOff();
 
         IsSelectingUnit = false;
         LightMain.intensity = 1f;
@@ -302,13 +313,7 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        PopulateDeck();
-        PopulateUnitField();
-
-        Mana = 5;
-        MaxMana = 5;
-
-        DrawInitialHand();
+        StartBattle();
     }
 
     #endregion

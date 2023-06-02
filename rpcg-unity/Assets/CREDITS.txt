@@ -1,0 +1,4 @@
+
+2D Sprite Outline
+by Hanna Fiani
+https://assetstore.unity.com/packages/vfx/shaders/2d-sprite-outline-109669

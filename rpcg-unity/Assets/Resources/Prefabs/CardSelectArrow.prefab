@@ -162,6 +162,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5774933408273371594}
   - component: {fileID: 5774933408273371604}
+  - component: {fileID: 1080025413502909052}
   m_Layer: 5
   m_Name: CardSelectArrow
   m_TagString: Untagged
@@ -199,3 +200,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5774933408273371593}
   m_CullTransparentMesh: 1
+--- !u!114 &1080025413502909052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5774933408273371593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcdd24f920fa81b49a81fb1f1b3f98b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RectTransform: {fileID: 5774933408273371594}
+  Image: {fileID: 1617781760373189260}

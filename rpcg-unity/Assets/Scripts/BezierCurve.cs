@@ -41,7 +41,6 @@ public class BezierCurve
             length += (GetPositionOnCurve(i * valueStep) - GetPositionOnCurve((i - 1) * valueStep)).magnitude;
             i++;
         }
-        // Debug.LogError($"GetLength() returned {length}");
         return length;
     }
 

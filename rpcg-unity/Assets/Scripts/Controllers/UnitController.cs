@@ -6,10 +6,15 @@ public class UnitController : MonoBehaviour
 {
 
 	[Header("Components")]
-	[SerializeField] private UnitSelectedHighlightController controllerSelectedHighlight;
+	public SpriteRenderer SpriteRendererRig;
+	[SerializeField] private SpriteRenderer spriteRendererOutline;
 
     [Header("Prefabs")]
     [SerializeField] private UnitOverheadController prefabOverhead;
+
+	[Header("Colors")]
+	[SerializeField] private Color colorHovered;
+	[SerializeField] private Color colorUnhovered;
 
     public IUnit Model { get; private set; }
 
@@ -40,6 +45,17 @@ public class UnitController : MonoBehaviour
 		}
 	}
 
+	public Vector2 TargetSelectArrowPosition
+	{
+		get
+		{
+			Sprite mySprite = SpriteRendererRig.sprite;
+			Vector3 worldPos = transform.position + new Vector3(0, mySprite.bounds.size.y / 2, 0);
+			Vector2 canvasPos = Camera.main.WorldToScreenPoint(worldPos);
+			return canvasPos;
+		}
+	}
+
 	public bool IsHoverable { get; set; } = false;
 	public bool IsBeingHovered { get; set; }
 	
@@ -56,7 +72,9 @@ public class UnitController : MonoBehaviour
 		HP -= damage;
 	}
 
-	private void HandleOnLeftClick()
+	private const string MATERIAL_OUTLINE_PROPNAME_COLOR = "_SolidOutline";
+
+    private void HandleOnLeftClick()
 	{
 		if (!Input.GetMouseButtonDown(0)) return;
 		if (!IsBeingHovered) return;
@@ -70,7 +88,15 @@ public class UnitController : MonoBehaviour
 	private void SetHoveredState(bool isHovered)
 	{
         IsBeingHovered = isHovered;
-        controllerSelectedHighlight.ToggleVisible(isHovered);
+		spriteRendererOutline.material.SetColor(MATERIAL_OUTLINE_PROPNAME_COLOR, isHovered ? colorHovered : colorUnhovered);
+
+        if (isHovered)
+		{
+			EventManager.Instance.OnUnitHovered(this);
+		} else
+		{
+			EventManager.Instance.OnUnitUnhovered(this);
+		}
     }
 
 	private void DebugPosition()
@@ -78,7 +104,7 @@ public class UnitController : MonoBehaviour
         float xAxis = (Input.GetKey(KeyCode.A) ? 1 : 0) - (Input.GetKey(KeyCode.D) ? 1 : 0);
         float zAxis = (Input.GetKey(KeyCode.W) ? 1 : 0) - (Input.GetKey(KeyCode.S) ? 1 : 0);
         Vector3 normalizedDir = new Vector3(xAxis, 0, zAxis).normalized;
-        transform.position += 5f * normalizedDir * Time.deltaTime;
+        transform.position += 5f * Time.deltaTime * normalizedDir;
     }
 
     private void OnMouseOver()
