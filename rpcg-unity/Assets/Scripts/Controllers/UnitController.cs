@@ -7,7 +7,6 @@ public class UnitController : MonoBehaviour
 
 	[Header("Components")]
 	public SpriteRenderer SpriteRendererRig;
-	[SerializeField] private SpriteRenderer spriteRendererOutline;
 
     [Header("Prefabs")]
     [SerializeField] private UnitOverheadController prefabOverhead;
@@ -56,7 +55,7 @@ public class UnitController : MonoBehaviour
 		}
 	}
 
-	public bool IsHoverable { get; set; } = false;
+	public bool IsSelectable { get; set; } = false;
 	public bool IsBeingHovered { get; set; }
 	
 	public void Bind(IUnit model)
@@ -78,9 +77,7 @@ public class UnitController : MonoBehaviour
 	{
 		if (!Input.GetMouseButtonDown(0)) return;
 		if (!IsBeingHovered) return;
-
-        IsHoverable = false;
-		IsBeingHovered = false;
+		if (!IsSelectable) return;
 
 		BattleManager.Instance.EndSelectingUnit(this);
 	}
@@ -88,7 +85,7 @@ public class UnitController : MonoBehaviour
 	private void SetHoveredState(bool isHovered)
 	{
         IsBeingHovered = isHovered;
-		spriteRendererOutline.material.SetColor(MATERIAL_OUTLINE_PROPNAME_COLOR, isHovered ? colorHovered : colorUnhovered);
+        SpriteRendererRig.material.SetColor(MATERIAL_OUTLINE_PROPNAME_COLOR, isHovered ? colorHovered : colorUnhovered);
 
         if (isHovered)
 		{
@@ -109,7 +106,6 @@ public class UnitController : MonoBehaviour
 
     private void OnMouseOver()
     {
-		if (!IsHoverable) return;
 		if (IsBeingHovered) return;
 		SetHoveredState(true);
     }

@@ -369,6 +369,7 @@ MonoBehaviour:
   LightMain: {fileID: 705507994}
   FieldHero: {fileID: 1261595255}
   FieldEnemy: {fileID: 1573999459}
+  Canvas: {fileID: 1732510157}
   UnitOverheadParent: {fileID: 348053924}
   DrawPileContainer: {fileID: 980921079}
   DiscardPileContainer: {fileID: 501989750}
@@ -1505,8 +1506,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvasGroup: {fileID: 886335710}
   prefabArrow: {fileID: 1080025413502909052, guid: 41d8d0094e2a6b14285af0bbe4f0212b, type: 3}
-  colorArrowUnselected: {r: 1, g: 1, b: 1, a: 1}
-  colorArrowSelected: {r: 1, g: 0.8627451, b: 0.2, a: 1}
+  colorArrowNoTarget: {r: 1, g: 1, b: 1, a: 1}
+  colorArrowValidTarget: {r: 1, g: 0.8627451, b: 0.2, a: 1}
+  colorArrowInvalidTarget: {r: 1, g: 0.3137255, b: 0.24705882, a: 1}
 --- !u!225 &886335710
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1595,7 +1597,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.2, g: 0.39474568, b: 0.39607844, a: 0}
+  m_BackGroundColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2938,7 +2940,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7475183481514438547, guid: 55ffbf5b5f804ec4586f53dfdf3d0849, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55ffbf5b5f804ec4586f53dfdf3d0849, type: 3}

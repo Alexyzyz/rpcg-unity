@@ -16,6 +16,7 @@ public class BattleManager : MonoBehaviour
     public GameObject FieldEnemy;
 
     [Header("Canvas Components")]
+    public RectTransform Canvas;
     public RectTransform UnitOverheadParent;
     public RectTransform DrawPileContainer;
     public RectTransform DiscardPileContainer;
@@ -140,13 +141,13 @@ public class BattleManager : MonoBehaviour
         if (targetType == CardGame.CardTargetType.OpponentSingle)
         {
             foreach (UnitController unit in EnemyList) {
-                unit.IsHoverable = true;
+                unit.IsSelectable = true;
             }
         } else
         if (targetType == CardGame.CardTargetType.AllySingle)
         {
             foreach (UnitController unit in HeroList) {
-                unit.IsHoverable = true;
+                unit.IsSelectable = true;
             }
         }
 
@@ -180,6 +181,21 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void EndTurn()
     {
+        CardHandManager.Instance.gameObject.SetActive(false);
+
+        foreach (UnitController enemy in EnemyList)
+        {
+            BattleEventManager.Instance.AddEvent((enemy.Model as IEnemy).PlayCard());
+        }
+        BattleEventManager.Instance.AddEvent(StartTurn);
+    }
+
+    /// <summary>
+    /// Start your turn.
+    /// </summary>
+    public void StartTurn() {
+        CardHandManager.Instance.gameObject.SetActive(true);
+
         int amountToDraw = CardGameManager.MAX_CARDS_IN_HAND;
         foreach (CardController cardToDiscard in CardHandManager.Instance.CardControllerList)
         {
@@ -256,11 +272,11 @@ public class BattleManager : MonoBehaviour
         // Disable every unit from being hoverable
         foreach (UnitController unit in EnemyList)
         {
-            unit.IsHoverable = false;
+            unit.IsSelectable = false;
         }
         foreach (UnitController unit in HeroList)
         {
-            unit.IsHoverable = false;
+            unit.IsSelectable = false;
         }
 
         // Enable every card from being hoverable

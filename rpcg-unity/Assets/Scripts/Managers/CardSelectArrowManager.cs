@@ -13,15 +13,16 @@ public class CardSelectArrowManager : MonoBehaviour
     [SerializeField] private CardSelectArrowController prefabArrow;
 
     [Header("Colors")]
-    [SerializeField] private Color colorArrowUnselected;
-    [SerializeField] private Color colorArrowSelected;
+    [SerializeField] private Color colorArrowNoTarget;
+    [SerializeField] private Color colorArrowValidTarget;
+    [SerializeField] private Color colorArrowInvalidTarget;
 
 	private CardController preparedCard;
     private UnitController hoveredUnit;
     private BezierCurve curve = new();
 
     private const int ARROW_COUNT = 64;
-    private const int DISTANCE_PER_ARROW = 24;
+    private const int DISTANCE_PER_ARROW = 48;
     private const float CURVINESS = 64;
     private const float ANIMATION_SPEED = 1.8f;
 
@@ -51,10 +52,16 @@ public class CardSelectArrowManager : MonoBehaviour
     private void UpdateCurve()
     {
 
-        arrowAnimationLerpValue = (arrowAnimationLerpValue + ANIMATION_SPEED * Time.deltaTime) % 1;
+        if (!(hoveredUnit != null && !hoveredUnit.IsSelectable))
+        {
+            // Only stop animating when the hovered target is invalid
+            arrowAnimationLerpValue = (arrowAnimationLerpValue + ANIMATION_SPEED * Time.deltaTime) % 1;
+        }
 
         if (preparedCard == null) return;
         if (controllerArrowArray[0] == null) return;
+
+        float canvasScaler = BattleManager.Instance.Canvas.localScale.x;
 
         Vector2 startPos = preparedCard.Position;
         Vector2 endPos = hoveredUnit == null ? Input.mousePosition : hoveredUnit.TargetSelectArrowPosition;
@@ -66,24 +73,33 @@ public class CardSelectArrowManager : MonoBehaviour
 
         bool isOffsetToTheRight = endPos.x >= preparedCard.Position.x;
         float offsetSign = isOffsetToTheRight ? 1 : -1;
+        float scaledCurviness = canvasScaler * CURVINESS;
 
         curve.P0 = startPos;
-        curve.P1 = firstControl + offsetSign * CURVINESS * startEndRight;
-        curve.P2 = secondControl + offsetSign * CURVINESS * startEndRight;
+        curve.P1 = firstControl + offsetSign * scaledCurviness * startEndRight;
+        curve.P2 = secondControl + offsetSign * scaledCurviness * startEndRight;
         curve.P3 = endPos;
 
         // Now we try to populate the curve with arrows
-        float arcLength = curve.GetLength();
+        float arcLength = curve.GetLength(8);
 
-        int fittableArrowCount = (int)(arcLength / DISTANCE_PER_ARROW);
-        float fittableLength = fittableArrowCount * DISTANCE_PER_ARROW;
+        float scaledDistancePerArrow = canvasScaler * DISTANCE_PER_ARROW;
+        int fittableArrowCount = Mathf.Min(ARROW_COUNT - 1, (int)(arcLength / scaledDistancePerArrow));
+        float fittableLength = fittableArrowCount * scaledDistancePerArrow;
 
         float maxLerpValue = fittableLength / arcLength;
         float stepValue = maxLerpValue / fittableArrowCount;
 
         float animationLerpValueOffset = Mathf.Lerp(0, stepValue, arrowAnimationLerpValue);
 
-        Color arrowColor = hoveredUnit == null ? colorArrowUnselected : colorArrowSelected;
+        Color arrowColor;
+        if (hoveredUnit)
+        {
+            arrowColor = hoveredUnit.IsSelectable ? colorArrowValidTarget : colorArrowInvalidTarget;
+        } else
+        {
+            arrowColor = colorArrowNoTarget;
+        }
 
         CardSelectArrowController controllerArrow;
         float finalLerpValue;
