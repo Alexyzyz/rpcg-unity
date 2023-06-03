@@ -7,6 +7,7 @@ public class UnitController : MonoBehaviour
 
 	[Header("Components")]
 	public SpriteRenderer SpriteRendererRig;
+	public Animator Animator;
 
     [Header("Prefabs")]
     [SerializeField] private UnitOverheadController prefabOverhead;
@@ -44,12 +45,21 @@ public class UnitController : MonoBehaviour
 		}
 	}
 
+	public float SpriteBoundsHeight
+	{
+		get
+		{
+            Sprite mySprite = SpriteRendererRig.sprite;
+			return mySprite.bounds.size.y;
+        }
+	}
+
 	public Vector2 TargetSelectArrowPosition
 	{
 		get
 		{
 			Sprite mySprite = SpriteRendererRig.sprite;
-			Vector3 worldPos = transform.position + new Vector3(0, mySprite.bounds.size.y / 2, 0);
+			Vector3 worldPos = transform.position + new Vector3(0, SpriteBoundsHeight / 2, 0);
 			Vector2 canvasPos = Camera.main.WorldToScreenPoint(worldPos);
 			return canvasPos;
 		}
@@ -64,6 +74,8 @@ public class UnitController : MonoBehaviour
         OverheadController.Bind(this);
 
 		HP = model.HPmax;
+
+		Animator.speed = Random.Range(1f, 1.3f);
 	}
 
 	public void TakeDamage(int damage)

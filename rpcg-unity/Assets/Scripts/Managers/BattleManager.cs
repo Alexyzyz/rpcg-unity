@@ -181,7 +181,7 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void EndTurn()
     {
-        CardHandManager.Instance.gameObject.SetActive(false);
+        // CardHandManager.Instance.gameObject.SetActive(false);
 
         foreach (UnitController enemy in EnemyList)
         {
@@ -194,18 +194,23 @@ public class BattleManager : MonoBehaviour
     /// Start your turn.
     /// </summary>
     public void StartTurn() {
-        CardHandManager.Instance.gameObject.SetActive(true);
+        // CardHandManager.Instance.gameObject.SetActive(true);
 
-        int amountToDraw = CardGameManager.MAX_CARDS_IN_HAND;
+        int amountToDraw = CardGameManager.MAX_CARDS_IN_HAND - CardsToBeKept.Count;
+
         foreach (CardController cardToDiscard in CardHandManager.Instance.CardControllerList)
         {
             if (CardsToBeKept.Contains(cardToDiscard))
             {
                 cardToDiscard.SetSelectedToBeKept(false);
-                amountToDraw--;
                 continue;
             }
-            BattleEventManager.Instance.AddEvent(() => CardHandManager.Instance.Discard(cardToDiscard), 0.1f);
+            BattleEventManager.Instance.AddEvent(() =>
+            {
+                CardHandManager.Instance.Discard(cardToDiscard);
+                DrawCard();
+            }, 0.1f);
+            amountToDraw--;
         }
 
         CardsToBeKept.Clear();
@@ -251,7 +256,10 @@ public class BattleManager : MonoBehaviour
     {
         for (int i = 0; i < 30; i++)
         {
-            DrawList.Add(CardGameManager.Instance.CardTypeList.SelectRandom());
+            DrawList.Add(
+                CardGameManager.Instance.CardTypeList
+                .Where(item => !item.CardTag.Contains(CardGame.CardTag.Food))
+                .ToList().SelectRandom());
         }
     }
 
@@ -307,6 +315,7 @@ public class BattleManager : MonoBehaviour
             Quaternion.identity,
             FieldEnemy.transform);
         newEnemy.transform.localPosition = Vector3.zero;
+        newEnemy.transform.eulerAngles = new Vector3(0, 180, 0);
         newEnemy.Bind(enemyModel);
         EnemyList.Add(newEnemy);
         return newEnemy;

@@ -29,10 +29,10 @@ public class CardGameManager : MonoBehaviour
     public List<ICard> CardTypeList = new()
     {
         new CardScratch(),
-        new CardEnemyHealer(),
+        new CardRecoil(),
         new CardPortableStove(),
         new CardCarrot(),
-        new CardPoisonPotato(),
+        new CardDurian(),
     };
 
     /// <summary>

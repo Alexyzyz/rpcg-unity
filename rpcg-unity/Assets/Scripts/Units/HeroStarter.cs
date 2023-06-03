@@ -5,7 +5,7 @@ using UnityEngine;
 public class HeroStarter : IHero
 {
 
-    public string Title { get; } = "The Chef";
-    public int HPmax { get; } = 100;
+    public string Title { get; } = "Alex";
+    public int HPmax { get; } = 40;
 
 }

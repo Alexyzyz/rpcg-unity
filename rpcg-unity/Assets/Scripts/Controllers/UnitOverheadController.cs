@@ -13,8 +13,6 @@ public class UnitOverheadController : MonoBehaviour
     [SerializeField] private Image hpLagBar;
     [SerializeField] private TextMeshProUGUI hpText;
 
-    private const float OVERHEAD_Y_POS = 1f;
-
     private int hpMax = 1;
 	private UnitController unitController;
 
@@ -57,7 +55,7 @@ public class UnitOverheadController : MonoBehaviour
 	private void UpdateCanvasPosition()
 	{
 		if (unitController == null) return;
-		Vector3 worldPos = unitController.transform.position + new Vector3(0, OVERHEAD_Y_POS, 0);
+		Vector3 worldPos = unitController.transform.position + new Vector3(0, unitController.SpriteBoundsHeight, 0);
 		Vector2 canvasPos = Camera.main.WorldToScreenPoint(worldPos);
 		transform.position = canvasPos;
 	}
